@@ -9,8 +9,6 @@ const storageAccountKey = 'GTVRTSAC2UtTOCgVoWuRtAQ6G6w4LWvbyT/TzWlHKA1uJWZro/CU+
 const containerName = 'gifstorage';
 
 
-
-
 async function UploadMysql(uID: number, nameImg : string, time : number, url : string, description : string, tagname : string){  
   const timstamp = time.toString();
   const status = 'public';
@@ -64,7 +62,6 @@ export async function POST(request : NextRequest){
       const description = data.get('description') as string;
       console.log('nameFile : ', nameFile);
       console.log('description : ', description);
-
       const blob = file;
       console.log('Uploading image api blob :', blob);
       const options: BlockBlobUploadOptions = {

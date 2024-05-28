@@ -13,7 +13,7 @@ export async function POST(request: NextRequest) {
           where: {
             status_img: 'public' // เงื่อนไขการเช็คค่า status
           },
-          order: [['timestamp', 'ASC']],
+          order: [['timestamp', 'DESC']],
           raw: true
         }) as any;
 
