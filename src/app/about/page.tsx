@@ -57,7 +57,7 @@ export default function Home() {
           <div className="text-center text-white">
           <p className="text-3xl">License</p>
           <br></br>
-          &nbsp;At GIFMaker, we believe in the power of sharing and collaboration. We want to make our content as accessible as possible while still respecting the rights of content creators. That's why we've chosen to license our content under the <b><a href="https://creativecommons.org/licenses/by/4.0/" className="hover:underline" target="_blank" rel="noopener noreferrer">Creative Commons Attribution 4.0 International License (CC BY 4.0)</a></b>.
+          &nbsp;At GIFMaker, we believe in the power of sharing and collaboration. We want to make our content as accessible as possible while still respecting the rights of content creators. That&apos;s why we&apos;ve chosen to license our content under the <b><a href="https://creativecommons.org/licenses/by/4.0/" className="hover:underline" target="_blank" rel="noopener noreferrer">Creative Commons Attribution 4.0 International License (CC BY 4.0)</a></b>.
           </div>
       </div>
       </main>
