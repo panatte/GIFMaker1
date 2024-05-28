@@ -15,7 +15,7 @@ function checkCookie(callback: any) {
     .then((res) => res.json())
     .then((data) => {
       if (data.status === 200) {
-        
+
         console.log("cookie is set");
         callback(true);
       } else {
@@ -254,7 +254,7 @@ const PopUp = ({
               className="bg-rose-500 text-white px-4 py-2 rounded-lg ml-3 hover:bg-rose-800"
             >
               <div className="flex items-center">
-                <FaShareAlt className="mr-[4px]" /> Share
+                <FaShareAlt className="mr-[4px]" /> CopyLink
               </div>
             </button>
             {hasCookie ? (

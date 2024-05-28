@@ -16,9 +16,6 @@ interface BoradProps {
 
 const Borad: React.FC<BoradProps> = ({ gridClass, sort, search, refecth }) => {
 
-  function Reloadimg() {
-    setCount((prevCount: number) => prevCount + 3);
-  }
   const [colsOne, setColsOne] = useState<string[]>([]);
   const [colsTwo, setColsTwo] = useState<string[]>([]);
   const [colsThree, setColsThree] = useState<string[]>([]);
@@ -28,9 +25,24 @@ const Borad: React.FC<BoradProps> = ({ gridClass, sort, search, refecth }) => {
   const [imgURLS, setImgURLS] = useState<string[]>([]);
   const [showPopUp, setShowPopUp] = useState("");
   const [count, setCount] = useState(3);
+  const [number, setNumber] = useState(19);
   const [likeImg, setLikeImg] = useState<string[]>([]);
   const [checkSortimg, setCheckSortimg] = useState('latest');
 
+
+  function Reloadimg() {
+    setCount((prevCount: number) => prevCount + 3);
+    setNumber((prevNumber: number) => prevNumber + 19);
+    //   for(let i = 0; i < colsMore.length; i++) {
+    //     if(colsOne.length <= count) {
+    //       colsOne.push(colsMore[i]);
+    //     } else if(colsTwo.length <= count) {
+    //       colsTwo.push(colsMore[i]);
+    //     }
+    //   }
+
+    // }
+  }
   const handleClick = (url: string) => {
     setShowPopUp(url);
   };
@@ -51,7 +63,7 @@ const Borad: React.FC<BoradProps> = ({ gridClass, sort, search, refecth }) => {
   };
 
   // ฟังก์ชันสำหรับการโหลดข้อมูลรูปภาพ
-  const loadImages = (sortParam:any) => {
+  const loadImages = (sortParam: any) => {
     Swal.fire({
       title: "Loading...",
       showConfirmButton: false,
@@ -74,6 +86,35 @@ const Borad: React.FC<BoradProps> = ({ gridClass, sort, search, refecth }) => {
     });
   };
 
+
+
+  const searchImages = (searchParam: string) => {
+    Swal.fire({
+      title: "Loading...",
+      html: "<div class='text-center'><div class='spinner-border' role='status'></div></div>",
+      showConfirmButton: false,
+      allowOutsideClick: false,
+    });
+    axios.post("/api/search", { search }).then((response) => {
+      if (response.data.status === 200) {
+        for (let i = 0; i < response.data.img_url.length; i++) {
+          console.log('response.data.img_url[i]', response.data.img_url[i]);
+          setImgURLS(response.data.img_url);
+        }
+        Swal.close();
+      } else {
+        Swal.fire({
+          icon: 'error',
+          title: 'Error',
+          text: 'Error searching images',
+          showConfirmButton: false,
+          timer: 1500
+        });
+      }
+    });
+
+  }
+  console.log('imgURLS befores -------------------------------- ', imgURLS);
   useEffect(() => {
     // ตรวจสอบว่าค่า sort และ checkSortimg เหมือนกันหรือไม่
     if (sort !== checkSortimg) {
@@ -84,91 +125,78 @@ const Borad: React.FC<BoradProps> = ({ gridClass, sort, search, refecth }) => {
       Refecth();
       loadImages(sort);
     }
-  }, [sort, checkSortimg]); // dependencies array
-
-  const searchImages = (searchParam: string) => {
-      Swal.fire({
-        title: "Loading...",
-        html: "<div class='text-center'><div class='spinner-border' role='status'></div></div>",
-        showConfirmButton: false,
-        allowOutsideClick: false,
-      });
-      axios.post("/api/search", { search }).then((response) => {
-        if (response.data.status === 200) {
-          for (let i = 0; i < response.data.img_url.length; i++) {
-            console.log('response.data.img_url[i]', response.data.img_url[i]);
-            setImgURLS(response.data.img_url);
-          }
-          Swal.close();
-        } else {
-          Swal.fire({
-            icon: 'error',
-            title: 'Error',
-            text: 'Error searching images',
-            showConfirmButton: false,
-            timer: 1500
-          });
-        }
-      });
-    
-  }
-
-  useEffect(() => {
     if (search !== "") {
       Refecth();
       searchImages(search);
-    } 
-  }, [count, search]);
+    }
+  }, [sort, checkSortimg]); // dependencies array
+  function loadimage() {
+    for (let i = 0; i < Math.min(number, imgURLS.length); i++) {
+      let imageExists = false;
 
-  if (imgURLS.length !== 0) {
-    for (let i = 0; i < imgURLS.length; i++) {
+      const imgData = JSON.stringify(imgURLS[i]);
+      const img_ = imgData.split("|");
+      const imgUrlPart = img_[0].split('!')[1].split('Imgurl=').pop() ?? ""
+      const userUrl = img_[1].split('"')[0] ?? ""
+      const userUrlPart = userUrl.split('=') ?? ""
+      const resultdata = imgUrlPart + "|" + userUrlPart
+
+      if (colsOne.includes(imgUrlPart)) {
+        imageExists = true;
+      } else if (colsTwo.includes(imgUrlPart)) {
+        imageExists = true;
+      } else if (colsThree.includes(imgUrlPart)) {
+        imageExists = true;
+      } else if (colsFour.includes(imgUrlPart)) {
+        imageExists = true;
+      } else if (colsFive.includes(imgUrlPart)) {
+        imageExists = true;
+      }
+
       if (colsOne.length <= count) {
-        const imgData = JSON.stringify(imgURLS[i]);
-        const img_ = imgData.split("|");
-        const imgUrlPart = img_[0].split('!')[1].split('Imgurl=').pop() ?? ""
-        const userUrl = img_[1].split('"')[0] ?? ""
-        const userUrlPart = userUrl.split('=') ?? ""
-        const resultdata = imgUrlPart + "|" + userUrlPart
+
         colsOne.push(resultdata);
       } else if (colsTwo.length <= count) {
-        const imgData = JSON.stringify(imgURLS[i]);
-        const img_ = imgData.split("|");
-        const imgUrlPart = img_[0].split('!')[1].split('Imgurl=').pop() ?? ""
-        const userUrl = img_[1].split('"')[0] ?? ""
-        const userUrlPart = userUrl.split('=') ?? ""
-        const resultdata = imgUrlPart + "|" + userUrlPart
+        // const imgData = JSON.stringify(imgURLS[i]);
+        // const img_ = imgData.split("|");
+        // const imgUrlPart = img_[0].split('!')[1].split('Imgurl=').pop() ?? ""
+        // const userUrl = img_[1].split('"')[0] ?? ""
+        // const userUrlPart = userUrl.split('=') ?? ""
+        // const resultdata = imgUrlPart + "|" + userUrlPart
         colsTwo.push(resultdata);
       } else if (colsThree.length <= count) {
-        const imgData = JSON.stringify(imgURLS[i]);
-        const img_ = imgData.split("|");
-        const imgUrlPart = img_[0].split('!')[1].split('Imgurl=').pop() ?? ""
-        const userUrl = img_[1].split('"')[0] ?? ""
-        const userUrlPart = userUrl.split('=') ?? ""
-        const resultdata = imgUrlPart + "|" + userUrlPart
+        // const imgData = JSON.stringify(imgURLS[i]);
+        // const img_ = imgData.split("|");
+        // const imgUrlPart = img_[0].split('!')[1].split('Imgurl=').pop() ?? ""
+        // const userUrl = img_[1].split('"')[0] ?? ""
+        // const userUrlPart = userUrl.split('=') ?? ""
+        // const resultdata = imgUrlPart + "|" + userUrlPart
         colsThree.push(resultdata);
       } else if (colsFour.length <= count) {
-        const imgData = JSON.stringify(imgURLS[i]);
-        const img_ = imgData.split("|");
-        const imgUrlPart = img_[0].split('!')[1].split('Imgurl=').pop() ?? ""
-        const userUrl = img_[1].split('"')[0] ?? ""
-        const userUrlPart = userUrl.split('=') ?? ""
-        const resultdata = imgUrlPart + "|" + userUrlPart
+        // const imgData = JSON.stringify(imgURLS[i]);
+        // const img_ = imgData.split("|");
+        // const imgUrlPart = img_[0].split('!')[1].split('Imgurl=').pop() ?? ""
+        // const userUrl = img_[1].split('"')[0] ?? ""
+        // const userUrlPart = userUrl.split('=') ?? ""
+        // const resultdata = imgUrlPart + "|" + userUrlPart
         colsFour.push(resultdata);
       } else if (colsFive.length <= count) {
-        const imgData = JSON.stringify(imgURLS[i]);
-        const img_ = imgData.split("|");
-        const imgUrlPart = img_[0].split('!')[1].split('Imgurl=').pop() ?? ""
-        const userUrl = img_[1].split('"')[0] ?? ""
-        const userUrlPart = userUrl.split('=') ?? ""
-        const resultdata = imgUrlPart + "|" + userUrlPart
+        // const imgData = JSON.stringify(imgURLS[i]);
+        // const img_ = imgData.split("|");
+        // const imgUrlPart = img_[0].split('!')[1].split('Imgurl=').pop() ?? ""
+        // const userUrl = img_[1].split('"')[0] ?? ""
+        // const userUrlPart = userUrl.split('=') ?? ""
+        // const resultdata = imgUrlPart + "|" + userUrlPart
         colsFive.push(resultdata);
       } else {
         colsMore.push(imgURLS[i]);
       }
     }
 
-  }
 
+  }
+  loadimage();
+  console.log('imgURLS after -------------------------------- ', imgURLS);
   return (
     <>
       <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
