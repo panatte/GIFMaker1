@@ -17,7 +17,7 @@ export async function POST(request: NextRequest) {
         if (matchedUser) {  
           // console.log("Matched Data ------------------------- sreach: ", "!Imgurl=" + imageItem.path_Img + "?id=" + imageItem.img_ID + "?like=" + imageItem.user_like + "|path_profile=" + matchedUser.path_profile + "?name=" + matchedUser.name,);
           matchedData.push({
-            imageUrl: "!Imgurl=" + imageItem.path_Img + "?id=" + imageItem.img_ID + "?like=" + imageItem.user_like  + "?name=" + matchedUser.name,
+            imageUrl: "!Imgurl=" + imageItem.path_Img + "?id=" + imageItem.img_ID + "?like=" + imageItem.user_like + "|path_profile=" + matchedUser.path_profile + "?name=" + matchedUser.name,
           });
         }
       });
