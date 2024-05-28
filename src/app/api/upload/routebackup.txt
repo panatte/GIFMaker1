@@ -1,0 +1,51 @@
+import type { NextApiRequest, NextApiResponse } from 'next';
+import { BlobServiceClient, StorageSharedKeyCredential } from '@azure/storage-blob';
+import { NextResponse } from "next/server";
+
+export async function POST(req: Request, res: NextApiResponse) {
+
+    const containerName = 'gifstorage';
+    const sasToken = process.env.NEXT_PUBLIC_STORAGESASTOKEN;
+    const storageAccountName = process.env.NEXT_PUBLIC_STORAGERESOURCENAME;
+
+    try {
+        // Retrieve file from request body
+        const fileImg = req.body;
+
+        if (!fileImg) {
+            return NextResponse.json({ message: 'No file selected for upload', status: 400 });
+        }
+
+        const credential = new StorageSharedKeyCredential(storageAccountName!, sasToken!);
+        const blobServiceClient = new BlobServiceClient(
+            `https://${storageAccountName}.blob.core.windows.net/${containerName}`, credential
+
+        );
+
+        // Get container client
+        // Get container client
+        const containerClient = blobServiceClient.getContainerClient(containerName);
+        await containerClient.createIfNotExists({ access: 'container' });
+        const filename = `${Date.now()}.png`;
+        const reader = fileImg.getReader();
+        const chunks: Uint8Array[] = [];
+        let done = false;
+        while (!done) {
+            const { value, done: readerDone } = await reader.read();
+            if (value) {
+                chunks.push(value);
+            }
+            done = readerDone;
+        }
+        const imageBuffer = Buffer.concat(chunks);
+        const blobClient = containerClient.getBlockBlobClient(filename);
+        const options = { blobHTTPHeaders: { blobContentType: 'image/png' } };
+        await blobClient.uploadData(imageBuffer, options);
+        console.log('blobClient : ', blobClient);
+
+
+        return NextResponse.json({ message: 'File uploaded successfully', status: 200 });
+    } catch (error: any) {
+        return NextResponse.json({ message: 'Error uploading file', status: 500 });
+    }
+}

@@ -1,2 +1,1 @@
-# GIFMaker1
- 
+GIFMaker Website IT498/CS498
