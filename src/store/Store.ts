@@ -40,8 +40,8 @@ export class Store {
   currentKeyFrame: number;
   fps: number;
 
-  possibleVideoFormats: string[] = ['mp4', 'gif', '.mov'];
-  selectedVideoFormat: 'mp4' | 'gif' | '.mov';
+  possibleVideoFormats: string[] = ['mp4', 'gif'];
+  selectedVideoFormat: 'mp4' | 'gif';
 
   
 
