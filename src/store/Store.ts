@@ -602,7 +602,7 @@ export class Store {
     this.addEditorElement({
       id,
       name: `Media(sticker) ${index + 1}`,
-      type: "image",
+      type: "video",
       placement: {
         x: placementX,
         y: placementY,
