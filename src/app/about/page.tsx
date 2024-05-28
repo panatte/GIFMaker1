@@ -50,7 +50,7 @@ export default function Home() {
           <br></br>
           <ul>
             <li>Create and upload GIF</li>
-            <li>Download and copy link of users' published from the main page</li>
+            <li>Download and copy link of users&apos; published from the main page</li>
           </ul>
           </div>
           <hr></hr>
