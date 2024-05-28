@@ -580,58 +580,76 @@ export class Store {
     if (!isHtmlVideoElement(stickerElement)) {
       return;
     }
-    // Calculate the duration in milliseconds
-    const stickerDurationMs = stickerElement.duration * 1000;
-    const aspectRatio = stickerElement.videoWidth / stickerElement.videoHeight; // Correct aspect ratio calculation
-    const id = getUid();
-    // Function to loop the sticker video
-    const loopSticker = () => {
-      stickerElement.currentTime = 0;
+  
+    // Validate the video format
+    const format = this.selectedVideoFormat;
+    if (!this.possibleVideoFormats.includes(format)) {
+      console.error('Unsupported video format');
+      return;
+    }
+  
+    // Function to handle processing once metadata is loaded
+    const processSticker = () => {
+      const stickerDurationMs = stickerElement.duration * 1000;
+      const aspectRatio = stickerElement.videoWidth / stickerElement.videoHeight;
+      const id = getUid();
+  
+      const canvasWidth = this.canvas?.getWidth() ?? 0;
+      const canvasHeight = this.canvas?.getHeight() ?? 0;
+      const placementX = (canvasWidth - 100 * aspectRatio) / 2;
+      const placementY = (canvasHeight - 100) / 2;
+  
+      this.addEditorElement({
+        id,
+        name: `Media(sticker) ${index + 1}`,
+        type: "video",
+        placement: {
+          x: placementX,
+          y: placementY,
+          width: 100 * aspectRatio,
+          height: 100,
+          rotation: 0,
+          scaleX: 1,
+          scaleY: 1,
+        },
+        timeFrame: {
+          start: 0,
+          end: format === 'gif' ? 5000 : stickerDurationMs, // GIFs might not have duration
+        },
+        properties: {
+          elementId: `sticker-${id}`,
+          src: stickerElement.src,
+          effect: {
+            type: "none",
+          },
+          brightness: this.brightness,
+          contrast: this.contrast,
+          hue: this.hue,
+          pixelate: this.pixelate,
+        },
+      });
+  
+      // Handle looping for MP4
+      if (format === 'mp4') {
+        const loopSticker = () => {
+          stickerElement.currentTime = 0;
+          stickerElement.play();
+        };
+        const intervalId = setInterval(loopSticker, stickerDurationMs);
+        setTimeout(() => clearInterval(intervalId), 5000);
+      }
+  
       stickerElement.play();
     };
-    // Set interval to ensure the sticker video loops within the timeframe
-    const intervalId = setInterval(loopSticker, stickerDurationMs);
-    // Set a timeout to clear the interval after the timeframe ends
-    setTimeout(() => clearInterval(intervalId), 5000);
-    // Set up the editor element
-    const canvasWidth = this.canvas?.getWidth() ?? 0;
-    const canvasHeight = this.canvas?.getHeight() ?? 0;
-    const placementX = (canvasWidth - 100 * aspectRatio) / 2;
-    const placementY = (canvasHeight - 100) / 2;
-
-    this.addEditorElement({
-      id,
-      name: `Media(sticker) ${index + 1}`,
-      type: "video",
-      placement: {
-        x: placementX,
-        y: placementY,
-        width: 100 * aspectRatio,
-        height: 100,
-        rotation: 0,
-        scaleX: 1,
-        scaleY: 1,
-      },
-      timeFrame: {
-        start: 0,
-        end: stickerDurationMs, // 5 seconds timeframe
-      },
-      properties: {
-        elementId: `sticker-${id}`,
-        src: stickerElement.src,
-        effect: {
-          type: "none",
-        },
-        brightness: this.brightness,
-        contrast: this.contrast,
-        hue: this.hue,
-        pixelate: this.pixelate,
-      },
-    });
-
-    // Start playing the sticker video
-    stickerElement.play();
+  
+    // Wait for metadata to load before processing
+    if (stickerElement.readyState < 1) {
+      stickerElement.addEventListener('loadedmetadata', processSticker);
+    } else {
+      processSticker();
+    }
   }
+  
 
 
   addImage(index: number) {
