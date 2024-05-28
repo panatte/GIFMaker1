@@ -7,7 +7,6 @@ import { FabricUitls } from '@/utils/fabric-utils';
 import { FFmpeg } from '@ffmpeg/ffmpeg';
 import { toBlobURL } from '@ffmpeg/util';
 import { cookies } from 'next/dist/client/components/headers';
-import * as THREE from 'three';
 
 export class Store {
   [x: string]: any;
@@ -581,86 +580,29 @@ export class Store {
     if (!isHtmlVideoElement(stickerElement)) {
       return;
     }
-  
-    // Create a WebGL renderer
-    const renderer = new THREE.WebGLRenderer({ alpha: true });
-    renderer.setSize(window.innerWidth, window.innerHeight);
-    document.body.appendChild(renderer.domElement);
-  
-    // Create a scene
-    const scene = new THREE.Scene();
-  
-    // Create a camera
-    const camera = new THREE.Camera();
-    camera.position.z = 1;
-  
-    // Create a video texture
-    const videoTexture = new THREE.VideoTexture(stickerElement);
-  
-    // Create a shader material
-    const chromaKeyMaterial = new THREE.ShaderMaterial({
-      uniforms: {
-        texture: { value: videoTexture },
-        colorToReplace: { value: new THREE.Color(0x000000) },
-        threshold: { value: 0.1 },
-      },
-      vertexShader: `
-        varying vec2 vUv;
-        void main() {
-          vUv = uv;
-          gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
-        }
-      `,
-      fragmentShader: `
-        uniform sampler2D texture;
-        uniform vec3 colorToReplace;
-        uniform float threshold;
-        varying vec2 vUv;
-        void main() {
-          vec4 color = texture2D(texture, vUv);
-          float alpha = 1.0;
-          if (distance(color.rgb, colorToReplace) < threshold) {
-            alpha = 0.0;
-          }
-          gl_FragColor = vec4(color.rgb, alpha);
-        }
-      `,
-      transparent: true,
-    });
-  
-    // Create a plane geometry and apply the shader material
-    const geometry = new THREE.PlaneGeometry(2, 2);
-    const mesh = new THREE.Mesh(geometry, chromaKeyMaterial);
-    scene.add(mesh);
-  
-    // Render the scene
-    const animate = () => {
-      requestAnimationFrame(animate);
-      renderer.render(scene, camera);
-    };
-    animate();
-  
     // Calculate the duration in milliseconds
     const stickerDurationMs = stickerElement.duration * 1000;
-    const aspectRatio = stickerElement.videoWidth / stickerElement.videoHeight;
+    const aspectRatio = stickerElement.videoWidth / stickerElement.videoHeight; // Correct aspect ratio calculation
     const id = getUid();
-  
+    // Function to loop the sticker video
     const loopSticker = () => {
       stickerElement.currentTime = 0;
       stickerElement.play();
     };
+    // Set interval to ensure the sticker video loops within the timeframe
     const intervalId = setInterval(loopSticker, stickerDurationMs);
+    // Set a timeout to clear the interval after the timeframe ends
     setTimeout(() => clearInterval(intervalId), 5000);
-  
+    // Set up the editor element
     const canvasWidth = this.canvas?.getWidth() ?? 0;
     const canvasHeight = this.canvas?.getHeight() ?? 0;
     const placementX = (canvasWidth - 100 * aspectRatio) / 2;
     const placementY = (canvasHeight - 100) / 2;
-  
+
     this.addEditorElement({
       id,
       name: `Media(sticker) ${index + 1}`,
-      type: "image",
+      type: "video",
       placement: {
         x: placementX,
         y: placementY,
@@ -672,7 +614,7 @@ export class Store {
       },
       timeFrame: {
         start: 0,
-        end: stickerDurationMs,
+        end: stickerDurationMs, // 5 seconds timeframe
       },
       properties: {
         elementId: `sticker-${id}`,
@@ -686,9 +628,11 @@ export class Store {
         pixelate: this.pixelate,
       },
     });
-  
+
+    // Start playing the sticker video
     stickerElement.play();
   }
+
 
 
   addImage(index: number) {
